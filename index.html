@@ -427,10 +427,10 @@
 
     <div class="section">
       <h2>4. AI Analysis and Third-Party Processing</h2>
-      <p>When you request an AI analysis, your photos and relevant body data are sent to Anthropic, Inc. (the provider of the Claude AI model) for processing.</p>
+      <p>When you request an AI analysis, your photos and relevant body data are transmitted through our secure Firebase Cloud Functions proxy (hosted on Google Cloud, us-central1) to Anthropic, Inc. (the provider of the Claude AI model) for processing. The proxy does not store your photos — it forwards requests in transit only.</p>
       <ul>
         <li>Anthropic processes this data solely to generate the analysis result</li>
-        <li>We do not store your photos on our own servers — photos remain on your device and in your personal iCloud storage</li>
+        <li>Your photos are not stored on our servers — they pass through the proxy in memory and are never written to disk or a database</li>
         <li>Anthropic's data handling is governed by their own <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener">Privacy Policy</a> and <a href="https://www.anthropic.com/legal/usage-policy" target="_blank" rel="noopener">Usage Policy</a></li>
         <li>We do not use your photos to train AI models</li>
       </ul>
@@ -444,7 +444,22 @@
         <li>All app data (settings, logs, analysis history) is stored locally on your device using Apple's CoreData framework</li>
         <li>If you have iCloud enabled, your data syncs across your personal Apple devices via iCloud CloudKit — this data is governed by <a href="https://www.apple.com/legal/privacy/" target="_blank" rel="noopener">Apple's Privacy Policy</a></li>
         <li>Photos are stored on your device's file system and are not uploaded to our servers</li>
-        <li>We do not operate our own backend servers that store your personal data</li>
+        <li>Photos are stored on your device's file system and are not uploaded to our servers</li>
+      </ul>
+      <h3 style="margin-top:1.2rem;margin-bottom:0.5rem;font-size:1rem;color:var(--text);">Data We Do Store on Our Servers (Firebase / Firestore)</h3>
+      <p>To enforce usage limits and protect service availability, our Firebase backend stores the following minimal data in Google Firestore:</p>
+      <ul>
+        <li>An anonymous device identifier (UUID generated on first launch) — never linked to your name, email, or Apple ID</li>
+        <li>A counter of AI analyses used (free tier: lifetime count; Pro tier: weekly count + week start date)</li>
+      </ul>
+      <p>No photos, body metrics, health data, or personally identifiable information are stored in Firestore. This data is retained for as long as you use the app and can be deleted upon request (see <em>Data Retention and Deletion</em> below).</p>
+
+      <h3 style="margin-top:1.2rem;margin-bottom:0.5rem;font-size:1rem;color:var(--text);">Device Attestation (App Check)</h3>
+      <p>To prevent abuse of the AI analysis feature, our backend uses <strong>Firebase App Check</strong> with <strong>Apple App Attest</strong>. When you make an analysis request:</p>
+      <ul>
+        <li>Apple's App Attest service verifies that the request originates from an unmodified, genuine copy of Gainly</li>
+        <li>An attestation token is sent to Firebase — this does not identify you personally</li>
+        <li>Apple's App Attest data handling is governed by <a href="https://www.apple.com/legal/privacy/" target="_blank" rel="noopener">Apple's Privacy Policy</a></li>
       </ul>
     </div>
 
@@ -488,7 +503,7 @@
         <li>Your data is stored on your device for as long as the app is installed</li>
         <li>To delete all your data, simply delete the app from your device</li>
         <li>If iCloud sync is enabled, you can remove iCloud data via Settings → [Your Name] → iCloud → Manage Account Storage</li>
-        <li>We have no server-side data to delete on your behalf</li>
+        <li>To request deletion of your server-side usage data (anonymous UUID + analysis counters stored in Firestore), email us at <a href="mailto:turlybekdostan@gmail.com">turlybekdostan@gmail.com</a> — we will process your request within 30 days</li>
       </ul>
     </div>
 
@@ -651,7 +666,9 @@
       <ul>
         <li>Apple App Store — for distribution and payment processing</li>
         <li>Apple iCloud — for data synchronisation across devices</li>
+        <li>Apple App Attest — for device integrity verification (App Check)</li>
         <li>Anthropic Claude API — for AI-powered photo analysis</li>
+        <li>Google Firebase (Cloud Functions, Firestore) — secure proxy and usage-limit enforcement</li>
       </ul>
       <p>We are not responsible for the practices of these third-party services.</p>
     </div>
